@@ -8,7 +8,6 @@ from keras import layers
 from keras.utils import pad_sequences
 
 
-
 def load_data() -> Dict[str, Union[List[Any], int]]:
     path = "/Users/jonasolsen/Documents/Skole/IIkt/4_semester/TDT4171-Metoder_i_kunstig_intelligens/Øvinger/øving_8/venv/keras-data.pickle"
     with open(file=path, mode="rb") as file:
@@ -54,46 +53,41 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
     y_train_shape = data["y_train"].shape
     print("x test shape: ", data["x_test"].shape)
     x_test_shape = data["x_test"].shape
-    print("y test shape: ", data["y_test"].shape)  
-    y_test_shape = data["y_test"].shape  
+    print("y test shape: ", data["y_test"].shape)
+    y_test_shape = data["y_test"].shape
     print("vocabulary size: ", data["vocab_size"])
     vocab_size = data["vocab_size"]
     print("max length: ", data["max_length"])
     max_length = data["max_length"]
     print(" -----------------------------------------------------------------------------------------")
 
-
     x_train = tf.keras.utils.pad_sequences(data["x_train"], maxlen=max_length)
-    y_train = tf.keras.utils.pad_sequences(data["y_train"].reshape(393053,1), maxlen=max_length)
+    y_train = tf.keras.utils.pad_sequences(
+        data["y_train"].reshape(393053, 1), maxlen=max_length)
     x_test = tf.keras.utils.pad_sequences(data["x_test"], maxlen=max_length)
-    y_test = tf.keras.utils.pad_sequences(data["y_test"].reshape(130528,1), maxlen=max_length)
+    y_test = tf.keras.utils.pad_sequences(
+        data["y_test"].reshape(130528, 1), maxlen=max_length)
 
-
+    # edit
 
     model = tf.keras.Sequential(
         [
-        layers.Embedding(input_dim=vocab_size, output_dim=1, input_length=max_length),
-        layers.Dense(1, "relu")
+            layers.Embedding(input_dim=vocab_size,
+                             output_dim=1, input_length=max_length),
+            layers.Dense(1, "relu")
         ]
     )
 
-    
     print(model.summary())
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
-              loss=tf.keras.losses.BinaryCrossentropy(),
-              metrics=[tf.keras.metrics.BinaryAccuracy(),
-                       tf.keras.metrics.FalseNegatives()])
+                  loss=tf.keras.losses.BinaryCrossentropy(),
+                  metrics=[tf.keras.metrics.BinaryAccuracy(),
+                           tf.keras.metrics.FalseNegatives()])
     y_pred = model.fit(x_train, y_train, batch_size=32)
 
     print(y_pred)
 
-
-
     pass
-
-
-
-
 
 
 def main() -> None:
@@ -111,7 +105,5 @@ def main() -> None:
           f'Test accuracy: {rnn_test_accuracy:.3f}')
 
 
-
 if __name__ == '__main__':
     main()
-
