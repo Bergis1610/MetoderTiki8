@@ -4,13 +4,11 @@ import numpy as np
 # Keras
 import tensorflow as tf
 from tensorflow import keras
-from keras import layers
 from keras.utils import pad_sequences
 
 
-
 def load_data() -> Dict[str, Union[List[Any], int]]:
-    path = "/Users/jonasolsen/Documents/Skole/IIkt/4_semester/TDT4171-Metoder_i_kunstig_intelligens/Øvinger/øving_8/venv/keras-data.pickle"
+    path = "keras-data.pickle"
     with open(file=path, mode="rb") as file:
         data = pickle.load(file)
 
@@ -23,6 +21,7 @@ def preprocess_data(data: Dict[str, Union[List[Any], int]]) -> Dict[str, Union[L
     to the same length; play around with the maxlen parameter to trade off speed and accuracy.
     """
     maxlen = data["max_length"]//16
+    print("maxlen: ", maxlen)
     data["x_train"] = pad_sequences(data['x_train'], maxlen=maxlen)
     data["y_train"] = np.asarray(data['y_train'])
     data["x_test"] = pad_sequences(data['x_test'], maxlen=maxlen)
@@ -44,56 +43,54 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
 
     # TODO build the model given model_type, train it on (data["x_train"], data["y_train"])
     #  and evaluate its accuracy on (data["x_test"], data["y_test"]). Return the accuracy
-    print(" ------------------------------------------DATA-------------------------------------------")
-    print(data)
-    print(" -----------------------------------------------------------------------------------------")
-    print(" ------------------------------------------SHAPES-----------------------------------------")
-    print("x train shape: ", data["x_train"].shape)
-    x_train_shape = data["x_train"].shape
-    print("y train shape: ", data["y_train"].shape)
-    y_train_shape = data["y_train"].shape
-    print("x test shape: ", data["x_test"].shape)
-    x_test_shape = data["x_test"].shape
-    print("y test shape: ", data["y_test"].shape)  
-    y_test_shape = data["y_test"].shape  
-    print("vocabulary size: ", data["vocab_size"])
-    vocab_size = data["vocab_size"]
-    print("max length: ", data["max_length"])
-    max_length = data["max_length"]
-    print(" -----------------------------------------------------------------------------------------")
+    accuracy = 0
+    #model = keras.Sequential()
+    # model.add(keras.layers.Embedding(input_dim=data["x_train"]))
 
+    print("data x train ", data["x_train"].shape[0])
+    print("data y train ", data["y_train"].shape)
+    print("data x test ", data["x_test"].shape)
+    print("data y test ", data["y_test"].shape)
 
-    x_train = tf.keras.utils.pad_sequences(data["x_train"], maxlen=max_length)
-    y_train = tf.keras.utils.pad_sequences(data["y_train"].reshape(393053,1), maxlen=max_length)
-    x_test = tf.keras.utils.pad_sequences(data["x_test"], maxlen=max_length)
-    y_test = tf.keras.utils.pad_sequences(data["y_test"].reshape(130528,1), maxlen=max_length)
+    if model_type == "recurrent":
+        print(model_type)
+        """ 
+        tf.keras.layers.Dense 
+        tf.keras.layers.Flatten
 
+        model.add(Dense(256, input_shape=(784,), activation="sigmoid"))
+        model.add(Dense(128, activation="sigmoid"))
+        model.add(Dense(10, activation="softmax"))
 
+        """
+    else:
+        print("feedforward")
+        """
+        tf.keras.layers.LSTM
+        tf.keras.layers.Dense
+        
+        """
 
-    model = tf.keras.Sequential(
-        [
-        layers.Embedding(input_dim=vocab_size, output_dim=1, input_length=max_length),
-        layers.Dense(1, "relu")
-        ]
-    )
+    #model.fit(data["x_train"], data["y_train"])
 
-    
-    print(model.summary())
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
-              loss=tf.keras.losses.BinaryCrossentropy(),
-              metrics=[tf.keras.metrics.BinaryAccuracy(),
-                       tf.keras.metrics.FalseNegatives()])
-    y_pred = model.fit(x_train, y_train, batch_size=32)
+    #model.evaluate(data["x_test"], data["y_test"])
 
-    print(y_pred)
+    # model.evaluate(x test, y test)
 
-
-
-    pass
-
-
-
-
+    # Pad_sequence ?
+    #
+    # model = tf.keras.Sequential()
+    #
+    #       tf.keras.layers.Embedding
+    #       (model.add(tf.keras.layers.Embedding(<parameters>)))
+    #       tf.keras.layers.Dense
+    #       tf.keras.layers.LSTM
+    #
+    # model.fit(epochs=1)
+    #
+    # model.evaluate(x test, y test)
+    return accuracy
+    # pass
 
 
 def main() -> None:
@@ -103,15 +100,13 @@ def main() -> None:
     keras_data = preprocess_data(keras_data)
     print("3. Training feedforward neural network...")
     fnn_test_accuracy = train_model(keras_data, model_type="feedforward")
-    print('Model: Feedforward NN.')
-    print(f'Test accuracy: {fnn_test_accuracy:.3f}')
+    print('Model: Feedforward NN.\n'
+          f'Test accuracy: {fnn_test_accuracy:.3f}')
     print("4. Training recurrent neural network...")
     rnn_test_accuracy = train_model(keras_data, model_type="recurrent")
     print('Model: Recurrent NN.\n'
           f'Test accuracy: {rnn_test_accuracy:.3f}')
 
 
-
 if __name__ == '__main__':
     main()
-
