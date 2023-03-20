@@ -66,7 +66,7 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
 
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Embedding(
-        input_dim=data["vocab_size"], output_dim=1))
+        input_dim=data["vocab_size"], output_dim=10))
 
     if model_type == "recurrent":
         print(model_type)
@@ -87,9 +87,13 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
         model.add(Dense(10, activation="softmax"))
 
         """
-        model.add(tf.keras.layers.Dense(100, "sigmoid"))
-        model.add(tf.keras.layers.Dense(1, "sigmoid"))
+        #model.add(tf.keras.layers.Dense(50, "softmax"))
+        #model.add(tf.keras.layers.Dense(10, "relu"))
         #model.add(tf.keras.layers.Dense(1, "sigmoid"))
+
+        model.add(tf.keras.layers.Dense(100, "sigmoid"))
+        #model.add(tf.keras.layers.Dense(10, "relu"))
+        model.add(tf.keras.layers.Dense(1, "sigmoid"))
 
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
                   loss=tf.keras.losses.MeanSquaredError(),
