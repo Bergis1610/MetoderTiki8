@@ -95,8 +95,8 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
                            tf.keras.metrics.FalseNegatives()])
     model.fit(x_train, y_train, batch_size=128, epochs=1)
     print("Evaluate on test data")
-    results = model.evaluate(x_test, y_test, batch_size=128)
-    print("test loss, test acc:", results)
+    accuracy = model.evaluate(x_test, y_test, batch_size=128)
+    print("test loss, test acc:", accuracy)
 
     #model.evaluate(data["x_test"], data["y_test"])
 
@@ -114,7 +114,7 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
     # model.fit(epochs=1)
     #
     # model.evaluate(x test, y test)
-    return accuracy
+    return accuracy[1]
     # pass
 
 
