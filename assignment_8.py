@@ -10,7 +10,7 @@ from keras.utils import pad_sequences
 
 
 def load_data() -> Dict[str, Union[List[Any], int]]:
-    path = "/Users/jonasolsen/Documents/Skole/IIkt/4_semester/TDT4171-Metoder_i_kunstig_intelligens/Øvinger/øving_8/venv/keras-data.pickle"
+    path = "/Users/jonasolsen/Documents/Skole/IIkt/4_semester/TDT4171-Metoder_i_kunstig_intelligens/Øvinger/øving_8/MetoderTiki8/keras-data.pickle"
     with open(file=path, mode="rb") as file:
         data = pickle.load(file)
 
@@ -68,27 +68,28 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
     x_test = tf.keras.utils.pad_sequences(data["x_test"], maxlen=max_length)
     y_test = tf.keras.utils.pad_sequences(data["y_test"].reshape(130528,1), maxlen=max_length)
 
-
-
-    model = tf.keras.Sequential(
-        [
-        layers.Embedding(input_dim=vocab_size, output_dim=1, input_length=max_length),
-        layers.Dense(1, "relu")
-        ]
-    )
+    
+    if model_type=="feedforward": 
+        model = tf.keras.Sequential(
+            [
+            layers.Embedding(input_dim=vocab_size, output_dim=1, input_length=max_length),
+            layers.Dense(1, "relu")
+            ]
+        )
 
     
-    print(model.summary())
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
-              loss=tf.keras.losses.BinaryCrossentropy(),
-              metrics=[tf.keras.metrics.BinaryAccuracy(),
-                       tf.keras.metrics.FalseNegatives()])
-    y_pred = model.fit(x_train, y_train, batch_size=32)
+        print(model.summary())
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
+                    loss=tf.keras.losses.BinaryCrossentropy(),
+                    metrics=tf.keras.metrics.BinaryAccuracy())
+        history = model.fit(x_train, y_train, batch_size=32)
+        results = model.evaluate(x_test, y_test, batch_size=128)
+        predictions = model.predict(x_test[:3])
 
-    print(y_pred)
+        print(results)
 
-
-
+        return results[1]
+    
     pass
 
 
