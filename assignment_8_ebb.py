@@ -44,16 +44,40 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
     # TODO build the model given model_type, train it on (data["x_train"], data["y_train"])
     #  and evaluate its accuracy on (data["x_test"], data["y_test"]). Return the accuracy
     accuracy = 0
-    #model = keras.Sequential()
-    # model.add(keras.layers.Embedding(input_dim=data["x_train"]))
+
+    # shape_x_train
+    # shape_y_train
+    # shape_x_test
+    # shape_y_test
 
     print("data x train ", data["x_train"].shape[0])
     print("data y train ", data["y_train"].shape)
     print("data x test ", data["x_test"].shape)
     print("data y test ", data["y_test"].shape)
 
+    x_train = tf.keras.utils.pad_sequences(
+        data["x_train"], maxlen=(data["max_length"]//8))
+    y_train = tf.keras.utils.pad_sequences(
+        data["y_train"].reshape(data["x_train"].shape[0], 1), maxlen=data["max_length"]//8)
+    x_test = tf.keras.utils.pad_sequences(
+        data["x_test"], maxlen=data["max_length"]//8)
+    y_test = tf.keras.utils.pad_sequences(
+        data["y_test"].reshape(data["x_test"].shape[0], 1), maxlen=data["max_length"]//8)
+
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Embedding(
+        input_dim=data["vocab_size"], output_dim=1))
+
     if model_type == "recurrent":
         print(model_type)
+
+        """
+        tf.keras.layers.LSTM
+        tf.keras.layers.Dense
+        
+        """
+    else:
+        print("feedforward")
         """ 
         tf.keras.layers.Dense 
         tf.keras.layers.Flatten
@@ -63,15 +87,16 @@ def train_model(data: Dict[str, Union[List[Any], np.ndarray, int]], model_type="
         model.add(Dense(10, activation="softmax"))
 
         """
-    else:
-        print("feedforward")
-        """
-        tf.keras.layers.LSTM
-        tf.keras.layers.Dense
-        
-        """
+        model.add(tf.keras.layers.Dense(1, "relu"))
 
-    #model.fit(data["x_train"], data["y_train"])
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+                  loss=tf.keras.losses.MeanSquaredError(),
+                  metrics=[tf.keras.metrics.BinaryAccuracy(),
+                           tf.keras.metrics.FalseNegatives()])
+    model.fit(x_train, y_train, batch_size=128, epochs=1)
+    print("Evaluate on test data")
+    results = model.evaluate(x_test, y_test, batch_size=128)
+    print("test loss, test acc:", results)
 
     #model.evaluate(data["x_test"], data["y_test"])
 
@@ -103,9 +128,9 @@ def main() -> None:
     print('Model: Feedforward NN.\n'
           f'Test accuracy: {fnn_test_accuracy:.3f}')
     print("4. Training recurrent neural network...")
-    rnn_test_accuracy = train_model(keras_data, model_type="recurrent")
-    print('Model: Recurrent NN.\n'
-          f'Test accuracy: {rnn_test_accuracy:.3f}')
+    #rnn_test_accuracy = train_model(keras_data, model_type="recurrent")
+    # print('Model: Recurrent NN.\n'
+    #      f'Test accuracy: {rnn_test_accuracy:.3f}')
 
 
 if __name__ == '__main__':
